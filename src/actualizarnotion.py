@@ -37,23 +37,24 @@ def get_e137_record():
     try:
         logging.info(f"Buscando registro {TARGET_FUNCTIONALITY}...")
         
-        results = notion.databases.query(
-            database_id=RELEASE_TRACKER_DB_ID,
-            filter={
-                "property": "Name",
-                "rich_text": {
-                    "contains": TARGET_FUNCTIONALITY
-                }
-            }
-        )
+        # Consultar todos los registros (sin filtro porque 'pro' es title)
+        results = notion.databases.query(database_id=RELEASE_TRACKER_DB_ID)
         
-        if results['results']:
-            record = results['results'][0]
-            logging.info(f"Registro encontrado: {record['id']}")
-            return record
-        else:
-            logging.warning(f"No se encontro el registro {TARGET_FUNCTIONALITY}")
-            return None
+        # Buscar E137 iterando por todos los registros
+        for record in results['results']:
+            properties = record.get('properties', {})
+            
+            # Buscar en la propiedad title (que se llama 'pro')
+            for prop_name, prop_data in properties.items():
+                if prop_data['type'] == 'title' and prop_data.get('title'):
+                    title_text = ''.join([t['plain_text'] for t in prop_data['title']])
+                    if TARGET_FUNCTIONALITY in title_text:
+                        logging.info(f"Registro encontrado: {title_text}")
+                        logging.info(f"ID: {record['id']}")
+                        return record
+        
+        logging.warning(f"No se encontro el registro {TARGET_FUNCTIONALITY}")
+        return None
             
     except Exception as e:
         logging.error(f"Error al buscar registro E137: {str(e)}")
