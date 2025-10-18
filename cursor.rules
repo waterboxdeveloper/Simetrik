@@ -1,0 +1,240 @@
+# Cursor Rules - Prueba Técnica Simetrik
+
+## 🎯 Contexto del Proyecto
+Este es un proyecto para una prueba técnica de **Prompt Engineer Junior** en Simetrik.
+- Duración: 7 horas efectivas
+- Enfoque: Automatización con Python + APIs + IA + n8n
+- Importancia de la documentación: 10% de la evaluación
+
+## 📋 Metodología de Trabajo
+
+### Respuestas Paso por Paso
+- SIEMPRE dividir el trabajo en pasos pequeños y manejables
+- NO dar código muy largo de una sola vez
+- Explicar cada paso ANTES de implementarlo
+- Preguntar si se entendió antes de continuar al siguiente paso
+- Usar formato: "Paso X de Y: [Título del paso]"
+
+### Preguntas de Confirmación
+Después de cada explicación importante, preguntar:
+- "¿Quedó claro este paso?"
+- "¿Quieres que avancemos o necesitas que profundice en algo?"
+- "¿Te hace sentido la lógica de este paso?"
+
+### Estructura de Cada Respuesta
+1. **Explicar** qué vamos a hacer y por qué
+2. **Mostrar** el código o configuración (en fragmentos pequeños)
+3. **Documentar** la decisión en la carpeta Ejecución/
+4. **Preguntar** si quedó claro antes de continuar
+
+## 📁 Estructura de Documentación
+
+### Carpeta Ejecución/
+Crear archivos .md para documentar:
+- `00_plan_general.md` - Planificación y arquitectura
+- `01_setup_entorno.md` - Configuración inicial
+- `02_notion_api.md` - Integración con Notion
+- `03_gemini_api.md` - Integración con Gemini
+- `04_pdf_processing.md` - Procesamiento de PDFs
+- `05_monitoreo_cambios.md` - Sistema de monitoreo
+- `06_generacion_onepager.md` - Generación del One Pager
+- `decisiones_tecnicas.md` - Registro de decisiones importantes
+- `errores_y_soluciones.md` - Problemas encontrados y cómo se resolvieron
+
+Cada archivo debe contener:
+- **Objetivo**: Qué se busca lograr
+- **Análisis**: Opciones consideradas
+- **Decisión**: Qué se eligió y por qué
+- **Implementación**: Pasos seguidos
+- **Resultado**: Qué funcionó/no funcionó
+- **Aprendizajes**: Qué se aprendió
+
+## 🛠️ Consideraciones Técnicas
+
+### Python y Entorno
+- Usar `uv` como gestor de paquetes y entornos
+- Configuración en `pyproject.toml`
+- Variables de entorno en `.env` (NUNCA commitear claves)
+- Config adicional en `config.yaml` si es necesario
+
+### APIs y Autenticación
+- Notion API: Usar integración oficial de Python (`notion-client`)
+- Gemini API: Usar `google-generativeai`
+- SIEMPRE validar respuestas de APIs
+- Implementar manejo de errores con reintentos (máximo 2)
+
+### Estructura del Código
+- Código MODULAR (funciones pequeñas con responsabilidad única)
+- Docstrings en TODAS las funciones
+- Type hints donde sea posible
+- Nombres descriptivos (en inglés):
+  - `dod_text` (Definition of Done text)
+  - `onepager_content`
+  - `pdf_output`
+  - `notion_page_id`
+
+### Logging y Errores
+- Usar módulo `logging` de Python
+- Logs con timestamps y niveles (INFO, WARNING, ERROR) no usar emojis 
+- Guardar logs en archivo `logs/automation.log`
+- Ejemplo formato: `[2024-10-17 14:30:45] INFO: Estado cambiado a Regression`
+
+### Testing
+- Crear archivo `tests/` con tests básicos
+- Al menos test de funciones críticas
+- Usar `pytest` para tests
+
+## 📝 Criterios de Evaluación (recordatorios)
+
+### Parte 1 - Python + Gemini (60%)
+- ✅ Detección automática de cambio de estado (25%)
+- ✅ Integración con Gemini API (20%)
+- ✅ Calidad técnica del código (15%)
+
+### Parte 2 - n8n (30%)
+- ✅ Diseño del flujo (15%)
+- ✅ Gestión multilingüe (15%)
+
+### Documentación (10%)
+- ✅ Claridad en decisiones técnicas
+- ✅ Explicación del proceso
+- ✅ README completo
+
+## 🎨 Estilo de Código
+
+### Formato Python
+- PEP 8 compliant
+- Líneas máximo 100 caracteres
+- 2 líneas entre funciones de nivel superior
+- Imports organizados: stdlib → terceros → propios
+
+### Comentarios
+- Comentarios en español o inglés (consistente)
+- Explicar el "por qué", no el "qué"
+- Docstrings en formato Google o NumPy
+
+## 🚀 Orden de Implementación Sugerido
+
+### Fase 1: Setup y Preparación
+1. Configurar entorno virtual con uv
+2. Instalar dependencias básicas
+3. Configurar autenticación de APIs
+4. Crear estructura de carpetas
+
+### Fase 2: Conexión con APIs
+5. Probar conexión con Notion API
+6. Probar conexión con Gemini API
+7. Implementar funciones básicas de lectura
+
+### Fase 3: Procesamiento
+8. Extracción de texto del PDF
+9. Construcción del prompt para Gemini
+10. Generación del One Pager
+
+### Fase 4: Automatización
+11. Sistema de monitoreo de cambios
+12. Actualización en Notion
+13. Generación de PDF final
+
+### Fase 5: Testing y Documentación
+14. Tests básicos
+15. Documentación completa
+16. README final
+
+## 💡 Tips Importantes
+
+### Sobre Gemini
+- El modelo correcto es `gemini-pro` o `gemini-1.5-pro`
+- Estructurar bien el prompt con las 8 secciones requeridas
+- Incluir ejemplos en el prompt si es necesario
+- Validar que la respuesta tenga todas las secciones
+
+### Sobre Notion
+- Notion API usa UUIDs con guiones
+- Los campos se llaman "properties"
+- Para archivos/PDFs usar "files" property
+- Necesitas permisos de lectura y escritura
+
+### Sobre PDFs
+- `pdfplumber` es excelente para extracción de texto
+- `reportlab` o `weasyprint` para generación
+- Validar que el texto extraído sea legible
+- Manejar encoding UTF-8
+
+### Sobre el Monitoreo
+- Polling cada 5 minutos es razonable
+- Guardar último estado conocido para comparar
+- Usar `time.sleep(300)` para 5 minutos
+- Considerar usar `schedule` library
+
+## 📦 Dependencias Sugeridas
+
+```toml
+[project.dependencies]
+# APIs
+notion-client = "^2.0.0"
+google-generativeai = "^0.3.0"
+
+# PDF Processing
+pdfplumber = "^0.11.0"
+reportlab = "^4.0.0"
+# o weasyprint = "^60.0"
+
+# Utilities
+python-dotenv = "^1.0.0"
+pyyaml = "^6.0"
+requests = "^2.31.0"
+
+# Logging & Monitoring
+schedule = "^1.2.0"
+
+# Testing
+pytest = "^7.4.0"
+```
+
+## 🔐 Seguridad
+
+- NUNCA commitear `.env` (agregarlo a .gitignore)
+- NUNCA hardcodear API keys
+- Usar variables de entorno para credenciales
+- Rotar claves después de la prueba
+
+## 📊 Estructura de Archivos Esperada
+
+```
+Prueba/
+├── contextoXpunto/          # Contexto de la prueba
+├── Ejecución/               # Documentación paso a paso
+├── src/                     # Código fuente
+│   ├── __init__.py
+│   ├── notion_client.py     # Cliente Notion
+│   ├── gemini_client.py     # Cliente Gemini
+│   ├── pdf_processor.py     # Procesamiento PDFs
+│   ├── monitor.py           # Sistema monitoreo
+│   └── main.py              # Punto de entrada
+├── tests/                   # Tests
+├── output/                  # PDFs generados
+├── logs/                    # Archivos de log
+├── .env                     # Variables de entorno
+├── config.yaml              # Configuración
+├── pyproject.toml           # Dependencias
+└── README.md                # Documentación principal
+```
+
+## 🎯 Recordatorios Finales
+
+1. **Calidad > Cantidad**: Mejor código claro que código "perfecto"
+2. **Documentar decisiones**: Explica por qué elegiste X sobre Y
+3. **Manejo de errores**: Siempre anticipar qué puede fallar
+4. **Logs descriptivos**: Facilitan debugging y demuestran profesionalismo
+5. **Modularidad**: Funciones pequeñas y reutilizables
+6. **Tests básicos**: Aunque sean simples, demuestran buenas prácticas
+
+## 🤝 Estilo de Comunicación
+
+- Siempre responder en español
+- Usar lenguaje claro y directo
+- Explicar términos técnicos cuando sea necesario
+- Celebrar pequeños logros para mantener motivación
+- Ser honesto sobre dificultades o limitaciones
+

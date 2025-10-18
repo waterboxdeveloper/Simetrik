@@ -1,0 +1,23 @@
+[project]
+name = "prueba"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-api-python-client>=2.185.0",
+    "google-auth>=2.41.1",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.2",
+    "google-generativeai>=0.8.5",
+    "markdown>=3.9",
+    "notion-client>=2.5.0",
+    "pdfplumber>=0.11.7",
+    "pytest>=8.4.2",
+    "python-dotenv>=1.1.1",
+    "pyyaml>=6.0.3",
+    "reportlab>=4.4.4",
+    "requests>=2.32.5",
+    "schedule>=1.2.2",
+    "weasyprint>=66.0",
+]

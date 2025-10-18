@@ -1,0 +1,49 @@
+# Environment variables (IMPORTANTE - Contiene API keys)
+.env
+.env.local
+.env.*.local
+
+# Logs (solo logs generados, no la estructura de carpetas)
+*.log
+
+# Configuration (puede contener info sensible)
+config.yaml
+
+# Archivos temporales
+temp/
+tmp/
+
+# Archivos de la prueba original (PDF base)
+pruebafull.pdf
+Prueba*.pdf
+
+# Carpeta force (scripts de exploracion y pruebas)
+force/
+
+# Scripts de prueba y debug temporales
+prueba.py
+src/debub_e137.py
+src/explorar_*.py
+src/accesonotion.py
+src/finddb.py
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
