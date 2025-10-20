@@ -1,6 +1,6 @@
 # 04 - Acceso a Notion: El Camino Largo vs La Solución Simple
 
-**Fecha:** 19 de Octubre, 2025  
+**Estado:** ✅ Resuelto - Acceso completo a páginas de Notion obtenido  
 **Resultado:** ✅ Acceso completo logrado
 
 ---
@@ -16,12 +16,12 @@ Acceder a las páginas de la prueba técnica de Simetrik en Notion para poder au
 ### 1. Exploración exhaustiva con API
 - **Método:** `search()` para listar todas las páginas accesibles
 - **Resultado:** 17 páginas/databases, ninguna de la prueba
-- **Tiempo:** ~30 minutos
+- **Duración:** ~30 minutos
 
 ### 2. Acceso directo con IDs
 - **Método:** Extraer IDs de las URLs y acceder con `pages.retrieve()`
 - **Resultado:** Error 404 / Sin permisos
-- **Tiempo:** ~15 minutos
+- **Duración:** ~15 minutos
 
 ### 3. Lectura recursiva completa
 - **Método:** Leer TODO el contenido accesible hasta 5 niveles de profundidad
@@ -30,7 +30,7 @@ Acceder a las páginas de la prueba técnica de Simetrik en Notion para poder au
   - `output/notion_completo.md` (975 líneas)
   - `output/todos_los_ids.md` (1976 líneas, 503 IDs)
   - `output/urls_imagenes.md` (295 líneas)
-- **Tiempo:** ~1 hora
+- **Duración:** ~1 hora
 
 ### 4. Fuzzy Matching de IDs (Brute Force)
 - **Método:** Comparar carácter por carácter los 503 IDs vs 8 IDs de la prueba
@@ -44,17 +44,17 @@ Acceder a las páginas de la prueba técnica de Simetrik en Notion para poder au
   - `output/comparacion_ids.txt`
   - `output/comparacion_detallada_ids.txt`
   - `output/mejores_matches.txt`
-- **Tiempo:** ~2 horas
+- **Duración:** ~2 horas
 
 ### 5. Búsqueda específica de Databases
 - **Método:** Filtrar solo objetos tipo `database` y `child_database`
 - **Resultado:** 5 databases encontradas, todas de ejemplo
-- **Tiempo:** ~30 minutos
+- **Duración:** ~30 minutos
 
 ### 6. Lectura de bloques similares
 - **Método:** Leer el contenido de los bloques con mejor match
 - **Resultado:** Solo texto simple (títulos, párrafos), sin información relevante
-- **Tiempo:** ~20 minutos
+- **Duración:** ~20 minutos
 
 ---
 
@@ -69,7 +69,7 @@ Acceder a las páginas de la prueba técnica de Simetrik en Notion para poder au
 4. Obtener los nuevos IDs de las URLs ✓
 5. Actualizar el `.env` ✓
 
-**Tiempo total:** ~20 minutos
+**Duración total:** ~20 minutos
 
 **Resultado:** ✅ Acceso completo a todas las páginas
 
@@ -98,7 +98,7 @@ Acceder a las páginas de la prueba técnica de Simetrik en Notion para poder au
 - Cada objeto tiene su ID único e inmutable
 
 ### 3. **A veces la solución simple es la mejor**
--  horas de exploración técnica vs 20 minutos de duplicación manual
+- Múltiples horas de exploración técnica vs 20 minutos de duplicación manual
 - "Work smarter, not harder"
 - Validar supuestos antes de invertir tiempo
 
@@ -164,8 +164,8 @@ Este ejercicio nos recordó que:
 - Explorar a fondo tiene valor educativo
 - Documentar el proceso ayuda a otros (y a nosotros en el futuro)
 
-**Tiempo invertido en exploración:** ~3 horas  
-**Tiempo de la solución real:** 20 minutos  
+**Duración invertida en exploración:** Múltiples horas  
+**Duración de la solución real:** 20 minutos  
 **Conocimiento adquirido:** Invaluable 
 
 ---

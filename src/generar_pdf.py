@@ -1,16 +1,15 @@
 """
-Generador de PDF del One Pager con imágenes.
-Convierte el Markdown generado por Gemini a PDF con formato profesional usando ReportLab.
+Generador de PDF del One Pager usando ReportLab.
+Convierte Markdown a PDF profesional con imágenes integradas.
 """
 
 import os
 import logging
-import re
 from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch, cm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.colors import HexColor
 
 
@@ -38,14 +37,13 @@ def read_markdown(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Limpiar bloques de código si existen
-        if content.startswith('```markdown'):
-            content = content.replace('```markdown', '').replace('```', '')
+        logging.info(f"Archivo Markdown leido: {file_path}")
+        logging.info(f"Tamano del contenido: {len(content)} caracteres")
         
-        logging.info(f"Markdown leido: {file_path} ({len(content)} caracteres)")
-        return content.strip()
+        return content
+        
     except Exception as e:
-        logging.error(f"Error al leer {file_path}: {str(e)}")
+        logging.error(f"Error al leer archivo Markdown: {str(e)}")
         raise
 
 
@@ -54,72 +52,88 @@ def create_styles():
     Crea estilos personalizados para el PDF.
     
     Returns:
-        dict: Diccionario de estilos.
+        dict: Diccionario con estilos personalizados.
     """
     styles = getSampleStyleSheet()
     
-    # Estilo para título principal
-    styles.add(ParagraphStyle(
-        name='CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=24,
-        textColor=HexColor('#3498db'),
-        spaceAfter=30,
-        alignment=TA_LEFT
-    ))
-    
-    # Estilo para subtítulo
-    styles.add(ParagraphStyle(
-        name='CustomSubtitle',
-        parent=styles['Normal'],
-        fontSize=12,
-        textColor=HexColor('#7f8c8d'),
-        spaceAfter=20,
-        alignment=TA_LEFT
-    ))
-    
-    # Estilo para secciones
-    styles.add(ParagraphStyle(
-        name='SectionHeading',
-        parent=styles['Heading2'],
-        fontSize=14,
-        textColor=HexColor('#2c3e50'),
-        spaceBefore=15,
-        spaceAfter=10,
-        leftIndent=0
-    ))
-    
-    # Estilo para texto normal
-    styles.add(ParagraphStyle(
-        name='CustomBody',
-        parent=styles['Normal'],
-        fontSize=11,
-        alignment=TA_JUSTIFY,
-        spaceAfter=12,
-        leading=16
-    ))
-    
-    # Estilo para bullets
-    styles.add(ParagraphStyle(
-        name='CustomBullet',
-        parent=styles['Normal'],
-        fontSize=10,
-        leftIndent=20,
-        spaceAfter=8,
-        leading=14
-    ))
+    # Estilos personalizados
+    custom_styles = {
+        'CustomTitle': ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Title'],
+            fontSize=24,
+            spaceAfter=12,
+            alignment=TA_CENTER,
+            textColor=HexColor('#2E86AB')
+        ),
+        'CustomSubtitle': ParagraphStyle(
+            'CustomSubtitle',
+            parent=styles['Heading2'],
+            fontSize=16,
+            spaceAfter=12,
+            alignment=TA_CENTER,
+            textColor=HexColor('#A23B72')
+        ),
+        'CustomHeading': ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=14,
+            spaceAfter=8,
+            spaceBefore=12,
+            textColor=HexColor('#2E86AB')
+        ),
+        'CustomBullet': ParagraphStyle(
+            'CustomBullet',
+            parent=styles['Normal'],
+            fontSize=11,
+            spaceAfter=6,
+            leftIndent=20,
+            bulletIndent=10
+        ),
+        'CustomNormal': ParagraphStyle(
+            'CustomNormal',
+            parent=styles['Normal'],
+            fontSize=11,
+            spaceAfter=8,
+            alignment=TA_LEFT
+        )
+    }
     
     logging.info("Estilos personalizados creados")
-    return styles
+    return custom_styles
+
+
+def convert_bold_formatting(text):
+    """
+    Convierte **texto** a <b>texto</b> de forma segura.
+    
+    Args:
+        text (str): Texto con formato **bold**.
+        
+    Returns:
+        str: Texto con formato HTML <b>bold</b>.
+    """
+    import re
+    
+    # Usar regex para encontrar **texto** y reemplazarlo correctamente
+    def replace_bold(match):
+        content = match.group(1)
+        return f"<b>{content}</b>"
+    
+    # Patrón para encontrar **texto** (no anidado)
+    pattern = r'\*\*(.*?)\*\*'
+    result = re.sub(pattern, replace_bold, text)
+    
+    return result
 
 
 def parse_markdown_to_elements(markdown_content, styles):
     """
-    Parsea el contenido Markdown y lo convierte en elementos de ReportLab.
+    Parsea el contenido Markdown y lo convierte a elementos de ReportLab.
     
     Args:
-        markdown_content (str): Contenido en formato Markdown.
-        styles: Estilos de ReportLab.
+        markdown_content (str): Contenido Markdown.
+        styles (dict): Estilos personalizados.
         
     Returns:
         list: Lista de elementos para el PDF.
@@ -127,65 +141,57 @@ def parse_markdown_to_elements(markdown_content, styles):
     elements = []
     lines = markdown_content.split('\n')
     
-    i = 0
-    while i < len(lines):
-        line = lines[i].strip()
+    image_count = 0
+    
+    for line in lines:
+        line = line.strip()
         
-        # Saltar líneas vacías
         if not line:
-            i += 1
             continue
-        
-        # Detectar secciones (### título)
-        if line.startswith('###'):
-            title_text = line.replace('###', '').strip()
-            elements.append(Paragraph(title_text, styles['SectionHeading']))
-            elements.append(Spacer(1, 0.2*cm))
             
-            # Insertar imágenes después de secciones específicas
-            if '6.' in title_text and 'consiste' in title_text.lower():
-                # Imagen después de sección 6
-                try:
-                    img = Image('output/images/dod_image_1760814201.png', width=15*cm, height=10*cm)
-                    elements.append(Spacer(1, 0.3*cm))
-                    elements.append(img)
-                    elements.append(Spacer(1, 0.3*cm))
-                    logging.info("Imagen 1 insertada después de sección 6")
-                except:
-                    logging.warning("No se pudo cargar imagen 1")
+        # Headings (###)
+        if line.startswith('### '):
+            title = line[4:].strip()
+            elements.append(Paragraph(title, styles['CustomHeading']))
             
-            elif '8.' in title_text:
-                # Imagen en sección 8
-                try:
-                    img = Image('output/images/dod_image_1760814203.png', width=15*cm, height=10*cm)
+            # Insertar imagen después de sección 6
+            if "6" in title and "En qué consiste" in title:
+                image_count += 1
+                image_path = f"output/images/dod_image_1760820189.png"
+                if os.path.exists(image_path):
                     elements.append(Spacer(1, 0.3*cm))
-                    elements.append(img)
+                    elements.append(Image(image_path, width=15*cm, height=10*cm))
                     elements.append(Spacer(1, 0.3*cm))
-                    logging.info("Imagen 2 insertada en sección 8")
-                except:
-                    logging.warning("No se pudo cargar imagen 2")
+                    logging.info(f"Imagen {image_count} insertada después de sección 6")
+            
+            # Insertar imagen en sección 8
+            elif "8" in title and "Cómo se usa" in title:
+                image_count += 1
+                image_path = f"output/images/dod_image_1760820190.png"
+                if os.path.exists(image_path):
+                    elements.append(Spacer(1, 0.3*cm))
+                    elements.append(Image(image_path, width=15*cm, height=10*cm))
+                    elements.append(Spacer(1, 0.3*cm))
+                    logging.info(f"Imagen {image_count} insertada en sección 8")
         
-        # Detectar bullets con * o -
-        elif line.startswith('*') or line.startswith('-'):
-            bullet_text = line[1:].strip()
-            # Convertir **texto** a <b>texto</b> para negrita
-            bullet_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', bullet_text)
-            elements.append(Paragraph(f"• {bullet_text}", styles['CustomBullet']))
+        # Bullet points
+        elif line.startswith('* ') or line.startswith('- '):
+            text = line[2:].strip()
+            # Convertir **texto** a <b>texto</b> correctamente
+            text = convert_bold_formatting(text)
+            elements.append(Paragraph(f"• {text}", styles['CustomBullet']))
         
-        # Detectar listas numeradas
-        elif re.match(r'^\d+\.', line):
-            number_text = re.sub(r'^\d+\.\s*', '', line)
-            # Convertir **texto** a <b>texto</b>
-            number_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', number_text)
-            elements.append(Paragraph(number_text, styles['CustomBullet']))
+        # Lista numerada
+        elif line[0].isdigit() and '. ' in line:
+            text = line.split('. ', 1)[1].strip()
+            text = convert_bold_formatting(text)
+            elements.append(Paragraph(f"• {text}", styles['CustomBullet']))
         
-        # Texto normal (párrafos)
+        # Párrafos normales
         else:
-            # Convertir **texto** a <b>texto</b>
-            paragraph_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', line)
-            elements.append(Paragraph(paragraph_text, styles['CustomBody']))
-        
-        i += 1
+            if line:
+                text = convert_bold_formatting(line)
+                elements.append(Paragraph(text, styles['CustomNormal']))
     
     logging.info(f"{len(elements)} elementos creados para el PDF")
     return elements
@@ -198,6 +204,9 @@ def generate_pdf(markdown_content, output_path="output/E137_OnePager.pdf"):
     Args:
         markdown_content (str): Contenido Markdown.
         output_path (str): Ruta del archivo PDF de salida.
+        
+    Returns:
+        str: Ruta del archivo PDF generado.
     """
     try:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -245,6 +254,8 @@ def generate_pdf(markdown_content, output_path="output/E137_OnePager.pdf"):
         file_size = os.path.getsize(output_path)
         logging.info(f"Tamano del PDF: {file_size / 1024:.2f} KB")
         
+        return output_path
+        
     except Exception as e:
         logging.error(f"Error al generar PDF: {str(e)}")
         raise
@@ -279,4 +290,3 @@ if __name__ == "__main__":
     except Exception as e:
         logging.error(f"Error en el proceso: {str(e)}")
         exit(1)
-

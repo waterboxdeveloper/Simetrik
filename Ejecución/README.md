@@ -63,6 +63,5 @@ Cada documento sigue esta estructura:
 
 ---
 
-**Última actualización:** 18 de octubre de 2025  
-**Fase actual:** Paso 2 completado ✅ - DoD extraído con tablas e imágenes - Listo para Paso 3 (Gemini API)
+**Estado del proyecto:** Completado ✅ - Flujo automatizado end-to-end funcionando
 

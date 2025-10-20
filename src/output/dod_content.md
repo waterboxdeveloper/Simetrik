@@ -43,7 +43,7 @@ Evitar la inserción y propagación de registros vacíos producidos por errores 
   - Reduce los errores de conciliación y exportación, derivados de valores null inesperados.
   - Ahorra tiempo al eliminar correcciones manuales en hojas de cálculo externas.
   - Aumenta la confiabilidad de los datos al impedir que se propaguen registros incompletos.
-  ![](output/images/dod_image_1760814201.png)
+  ![](output/images/dod_image_1760820460.png)
 
 ---
 
@@ -57,7 +57,7 @@ Evitar la inserción y propagación de registros vacíos producidos por errores 
 En el panel lateral elige: •Asignar nuevo formato • Procesar con errores • ó Descartar los registros |
 | 4 | Presiona Reprocesar registros. |
 
-![](output/images/dod_image_1760814203.png)
+![](output/images/dod_image_1760820461.png)
 
 ---
 

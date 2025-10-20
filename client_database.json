@@ -1,0 +1,62 @@
+[
+    {
+      "id": "1",
+      "nombre": "Laura Gómez",
+      "correo": "laura.gomez@empresa.com",
+      "idioma": "ES"
+    },
+    {
+      "id": "2",
+      "nombre": "André Silva",
+      "correo": "andre.silva@empresa.com.br",
+      "idioma": "PT"
+    },
+    {
+      "id": "3",
+      "nombre": "John Doe",
+      "correo": "john.doe@company.com",
+      "idioma": "EN"
+    },
+    {
+      "id": "4",
+      "nombre": "Mariana Torres",
+      "correo": "mariana.torres@empresa.com",
+      "idioma": "ES"
+    },
+    {
+      "id": "5",
+      "nombre": "Beatriz Souza",
+      "correo": "beatriz.souza@empresa.com.br",
+      "idioma": "PT"
+    },
+    {
+      "id": "6",
+      "nombre": "David Brown",
+      "correo": "david.brown@company.com",
+      "idioma": "EN"
+    },
+    {
+      "id": "7",
+      "nombre": "Camila Pérez",
+      "correo": "camila.perez@empresa.com",
+      "idioma": "ES"
+    },
+    {
+      "id": "8",
+      "nombre": "Lucas Almeida",
+      "correo": "lucas.almeida@empresa.com.br",
+      "idioma": "PT"
+    },
+    {
+      "id": "9",
+      "nombre": "Emily Clark",
+      "correo": "emily.clark@company.com",
+      "idioma": "EN"
+    },
+    {
+      "id": "10",
+      "nombre": "Ricardo López",
+      "correo": "ricardo.lopez@empresa.com",
+      "idioma": "ES"
+    }
+  ]

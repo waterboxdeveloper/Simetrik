@@ -1,0 +1,116 @@
+# 📝 Prompts Exactos para Traducción con Gemini API
+
+## 🌍 **Prompt para Traducción Español → Inglés**
+
+```
+Eres un traductor especializado en documentación técnica financiera. Tu tarea es traducir el siguiente documento educativo de español a inglés, manteniendo:
+
+REQUISITOS:
+- Tono profesional y educativo
+- Terminología técnica precisa
+- Estructura original del documento
+
+DOCUMENTO A TRADUCIR:
+[CONTENIDO_DEL_PDF_AQUI]
+
+INSTRUCCIONES ESPECÍFICAS:
+1. Mantén todos los títulos y subtítulos
+2. Preserva listas y numeración
+3. Conserva el formato técnico
+4. Usa terminología financiera estándar
+
+RESPUESTA ESPERADA:
+Proporciona únicamente la traducción completa en inglés, sin comentarios adicionales.
+```
+
+## 🌍 **Prompt para Traducción Español → Portugués**
+
+```
+Eres un traductor especializado en documentación técnica financiera. Tu tarea es traducir el siguiente documento educativo de español a portugués brasileño, manteniendo:
+
+REQUISITOS:
+- Tono profesional y educativo
+- Terminología técnica precisa
+- Estructura original del documento
+
+DOCUMENTO A TRADUCIR:
+[CONTENIDO_DEL_PDF_AQUI]
+
+INSTRUCCIONES ESPECÍFICAS:
+1. Mantén todos los títulos y subtítulos
+2. Preserva listas y numeración
+3. Conserva el formato técnico
+4. Usa terminología financiera estándar brasileña
+
+RESPUESTA ESPERADA:
+Proporciona únicamente la traducción completa en portugués brasileño, sin comentarios adicionales.
+```
+
+## ⚙️ **Configuración de Gemini API**
+
+### **Endpoint:**
+```
+https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent
+```
+
+### **Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer {GEMINI_API_KEY}
+```
+
+### **Body Structure:**
+```json
+{
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "[PROMPT_COMPLETO_AQUI]"
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "temperature": 0.3,     #nota , no pasar esta parte en el json de ya que causa error, solo enviar el promt
+    "maxOutputTokens": 2048
+  }
+}
+```
+
+## 📊 **Parámetros de Configuración**
+
+- **Modelo**: `gemini-pro`
+- **Temperature**: `0.3` (para traducciones consistentes)
+- **Max Output Tokens**: `2048` (límite de respuesta)
+- **Tipo de Respuesta**: Texto plano sin formato adicional
+
+## 🔄 **Integración en n8n**
+
+### **Nodo HTTP Request:**
+- **Método**: POST
+- **URL**: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent`
+- **Authentication**: Predefined Credential Type (Google API)
+- **Body**: JSON con estructura completa
+- **Headers**: Content-Type: application/json
+
+### **Acceso a Respuesta:**
+```javascript
+// En nodos Function posteriores
+const textoTraducido = $json.candidates[0].content.parts[0].text;
+```
+
+## 📝 **Notas Técnicas**
+
+1. **Validación de Entrada**: Siempre verificar que `$json.candidates` existe antes de acceder
+2. **Manejo de Errores**: Incluir try-catch para respuestas de API fallidas
+3. **Logging**: Registrar número de tokens procesados y tiempo de respuesta
+4. **Rate Limiting**: Gemini API tiene límites de requests por minuto
+
+## 🎯 **Criterios de Éxito**
+
+- ✅ **Traducción Completa**: Todo el contenido del PDF traducido
+- ✅ **Estructura Preservada**: Títulos, listas y formato mantenidos
+- ✅ **Terminología Técnica**: Uso correcto de términos financieros
+- ✅ **Tono Profesional**: Mantenimiento del estilo educativo corporativo
+- ✅ **Sin Comentarios**: Solo texto traducido, sin explicaciones adicionales

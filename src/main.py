@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # Importar todos los módulos del flujo
 from tracker import query_release_tracker, get_deployment_status, get_link_definition
 from extraer_dod import extract_dod_content, save_dod_to_file
-from generar_onepager_gemini import generate_one_pager, save_one_pager_to_file
+from generar_onepager_gemini import generate_onepager, save_onepager
 from generar_pdf import generate_pdf
 from subir_github import generate_github_url
 from actualizarnotion import update_notion_with_pdf
@@ -36,6 +36,37 @@ load_dotenv()
 
 TARGET_FUNCTIONALITY = "E137"
 TARGET_STATUS = "Regression"
+
+
+def extract_page_id_from_url(notion_url):
+    """
+    Extrae el ID de la página de una URL de Notion.
+    
+    Args:
+        notion_url (str): URL completa de Notion.
+        
+    Returns:
+        str: ID de la página o None si no se puede extraer.
+    """
+    try:
+        import re
+        
+        # Patrón para extraer ID de página de Notion
+        # Ejemplo: https://www.notion.so/...-28c98e9d3db980d6bbdec4ff92912fd1?source=copy_link
+        pattern = r'([a-f0-9]{32})'
+        match = re.search(pattern, notion_url)
+        
+        if match:
+            page_id = match.group(1)
+            logging.info(f"ID extraído de URL: {page_id}")
+            return page_id
+        else:
+            logging.error(f"No se pudo extraer ID de la URL: {notion_url}")
+            return None
+            
+    except Exception as e:
+        logging.error(f"Error al extraer ID de URL: {str(e)}")
+        return None
 
 
 
@@ -105,8 +136,16 @@ def step_2_extract_dod_content(link_definition):
         logging.info("PASO 2: EXTRACCIÓN DEL DEFINITION OF DONE")
         logging.info("="*80)
         
+        # Usar el ID de la página duplicada desde .env
+        page_id = os.getenv("NOTION_DOD_PAGE_ID")
+        if not page_id:
+            logging.error("NOTION_DOD_PAGE_ID no configurado en .env")
+            return None
+        
+        logging.info(f"Usando ID de página duplicada: {page_id}")
+        
         # Extraer contenido del DoD
-        dod_content = extract_dod_content(link_definition)
+        dod_content = extract_dod_content(page_id)
         
         if dod_content:
             # Guardar en archivo
@@ -137,12 +176,24 @@ def step_3_generate_one_pager(dod_content):
         logging.info("PASO 3: GENERACIÓN DEL ONE PAGER CON GEMINI")
         logging.info("="*80)
         
-        # Generar One Pager con Gemini
-        onepager_content = generate_one_pager(dod_content)
+        # Importar funciones necesarias
+        from generar_onepager_gemini import configure_gemini, read_file_content, build_prompt
+        
+        # Paso 1: Configurar Gemini
+        model = configure_gemini()
+        
+        # Paso 2: Leer guía del One Pager
+        guide_content = read_file_content("output/onepager_guide.md")
+        
+        # Paso 3: Construir prompt completo
+        prompt = build_prompt(dod_content, guide_content)
+        
+        # Paso 4: Generar One Pager con Gemini
+        onepager_content = generate_onepager(model, prompt)
         
         if onepager_content:
             # Guardar en archivo
-            save_one_pager_to_file(onepager_content)
+            save_onepager(onepager_content)
             logging.info("One Pager generado y guardado exitosamente")
             return onepager_content
         else:
@@ -344,6 +395,7 @@ if __name__ == "__main__":
         "NOTION_API_KEY",
         "NOTION_RELEASE_TRACKER_DB_ID", 
         "NOTION_DATA_NORMALIZATION_PAGE_ID",
+        "NOTION_DOD_PAGE_ID",
         "GEMINI_API_KEY",
         "GITHUB_USER",
         "GITHUB_REPO"

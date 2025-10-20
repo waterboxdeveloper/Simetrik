@@ -1,84 +1,102 @@
 # 09 - Actualización en Notion (Paso 5)
 
-**Estado:** 🚧 En progreso
+**Estado:** ✅ Completado y funcionando
 
 ---
 
 ## 🎯 Objetivo
 
 Subir el PDF del One Pager generado a Notion, actualizando:
-1. El registro de E137 en el Release Tracker
-2. La página "Data Normalization in Union Sources" para revisión del equipo de Educación
+1. El registro de E137 en el Release Tracker con el link del PDF
+2. La página "Data Normalization in Union Sources" adjuntando el PDF para revisión del equipo de Educación
 
 ---
 
-## 🏗️ Estrategia de implementación
+## 🏗️ Implementación
 
-### Opción 1: Subir PDF a servicio externo y guardar link en Notion
-**Método:**
-- Subir `E137_OnePager.pdf` a un servicio de hosting (Google Drive, Dropbox, AWS S3)
-- Obtener link público permanente
-- Actualizar columna `📄 One Pager Link` (tipo URL) en E137 con el link
-- Agregar bloque de archivo externo en página "Data Normalization"
+**Archivos:**
+- `src/subir_github.py` - Genera URL pública del PDF en GitHub
+- `src/actualizarnotion.py` - Actualiza Notion con la URL
 
-**Ventajas:**
-- Link permanente y accesible
-- No depende de URLs temporales de Notion
-- Simple de implementar
-
-**Desventajas:**
-- Requiere servicio externo
+**Decisiones técnicas:**
+- Hosting: GitHub (como repositorio del código)
+- URL pública permanente: `https://raw.githubusercontent.com/user/repo/branch/path`
+- Actualización vía Notion API (no upload directo de binarios)
 
 ---
 
-### Opción 2: Subir PDF directamente a Notion como archivo
-**Método:**
-- Usar Notion API para subir el archivo PDF
-- Notion genera URL temporal (válida por ~1 hora)
-- Actualizar la página con bloque tipo `file`
+## 🐛 Retos y soluciones
 
-**Ventajas:**
-- Todo queda dentro de Notion
-- No requiere servicios externos
+### Reto 1: Google Drive API con service accounts
+**Problema:** Service accounts NO tienen almacenamiento propio en Google Drive (error 403: "storageQuotaExceeded").
 
-**Desventajas:**
-- URLs temporales (requieren regeneración periódica)
-- API de Notion tiene limitaciones para upload de archivos
+**Causa:** Google Drive requiere que las service accounts usen Shared Drives o OAuth delegation, no pueden subir archivos a su propio "Drive".
+
+**Solución:** Cambiar estrategia a GitHub como hosting del PDF.
 
 ---
 
-## 🐛 Consideraciones técnicas
+### Reto 2: Buscar registro E137 en Release Tracker
+**Problema:** El script no encontraba el registro E137, aunque existía.
 
-### Reto 1: Columna para PDF en Release Tracker
-**Problema:** La database no tenía columna para archivos/enlaces de PDFs.
+**Causa:** 
+- El filtro buscaba en la propiedad "Name" (tipo `rich_text`)
+- La propiedad de título real se llama "pro" (tipo `title`)
+- La API de Notion no permite filtrar por propiedades `title` directamente
 
-**Solución:** Agregar manualmente columna `📄 One Pager Link` (tipo URL) desde la interfaz de Notion.
-
----
-
-### Reto 2: API de Notion y archivos
-**Problema:** La API de Notion no soporta upload directo de archivos binarios.
-
-**Solución:** Usar una de estas alternativas:
-1. Subir PDF a servicio externo y guardar link
-2. Usar bloque tipo `file` con link externo
-3. Convertir PDF a imágenes y subir como bloques `image`
+**Solución:** 
+- Consultar todos los registros sin filtro
+- Iterar manualmente buscando "E137" en la propiedad tipo `title`
 
 ---
 
-## 📝 Funciones a implementar
+### Reto 3: Columna para el PDF en Release Tracker
+**Problema:** La database no tenía columna para el link del PDF.
 
-- `upload_pdf_to_external_service()` - Sube PDF a Google Drive/Dropbox
-- `update_release_tracker_record()` - Actualiza columna URL en E137
-- `append_pdf_to_page()` - Agrega bloque de archivo a página de Notion
+**Solución:** Agregar manualmente desde Notion la columna `📄 One Pager Link` (tipo `url`).
+
+---
+
+## ✅ Resultado
+
+Actualización exitosa en Notion con:
+
+1. ✅ **Release Tracker actualizado:**
+   - Registro E137 encontrado (ID: `290e7dd8-97ed-81e4-8eca-e39254a9f43a`)
+   - Columna "📄 One Pager Link" actualizada con URL del PDF
+   - URL: `https://raw.githubusercontent.com/waterboxdeveloper/Simetrik/main/src/output/E137_OnePager.pdf`
+
+2. ✅ **Página "Data Normalization" actualizada:**
+   - Bloque heading_2 agregado: "📄 One Pager Generado"
+   - Bloque paragraph agregado: "One Pager educativo generado automaticamente con Gemini API"
+   - Bloque file agregado con link externo al PDF en GitHub
+   - El equipo de Educación puede descargar y revisar el PDF desde Notion
+
+---
+
+## 📊 Logs de ejecución
+
+```
+[LOG] - INFO - ACTUALIZANDO NOTION CON PDF
+[LOG] - INFO - Buscando registro E137...
+[LOG] - INFO - Registro encontrado: E137
+[LOG] - INFO - ID: 290e7dd8-97ed-81e4-8eca-e39254a9f43a
+[LOG] - INFO - Actualizando Release Tracker con URL del PDF...
+[LOG] - INFO - Release Tracker actualizado exitosamente
+[LOG] - INFO - Agregando PDF a pagina Data Normalization...
+[LOG] - INFO - PDF agregado exitosamente a la pagina
+[LOG] - INFO - ACTUALIZACION COMPLETA EXITOSA
+[LOG] - INFO - Release Tracker actualizado: SI
+[LOG] - INFO - Pagina Data Normalization actualizada: SI
+```
 
 ---
 
 ## 🔗 Próximo paso
 
-Implementar el script de actualización y probar el flujo completo end-to-end.
+Integrar todos los pasos en un script principal (`main.py`) para ejecutar el flujo completo end-to-end.
 
 ---
 
-**Estado:** 🚧 En progreso - Documentación preliminar
+**Estado:** ✅ Completado - Paso 5 exitoso
 

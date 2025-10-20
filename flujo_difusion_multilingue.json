@@ -1,0 +1,406 @@
+{
+  "name": "Flujo Difusión Multilingüe - Simetrik",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "filePath": "/path/to/ES_-_Conciliaciones_Avanzadas.pdf"
+      },
+      "id": "read-pdf",
+      "name": "Read PDF File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "operation": "extractText"
+      },
+      "id": "extract-text",
+      "name": "Extract PDF Text",
+      "type": "n8n-nodes-base.extractPdf",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-es",
+              "leftValue": "{{$json.idioma}}",
+              "rightValue": "ES",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "split-language",
+      "name": "Split by Language",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents",
+              "value": "={{JSON.stringify([{\"parts\":[{\"text\":\"Eres un traductor especializado en documentación técnica financiera. Tu tarea es traducir el siguiente documento educativo de español a inglés, manteniendo:\\n\\nREQUISITOS:\\n- Tono profesional y educativo\\n- Terminología técnica precisa\\n- Estructura original del documento\\n\\nDOCUMENTO A TRADUCIR:\\n\" + $json.texto_extraido + \"\\n\\nINSTRUCCIONES ESPECÍFICAS:\\n1. Mantén todos los títulos y subtítulos\\n2. Preserva listas y numeración\\n3. Conserva el formato técnico\\n4. Usa terminología financiera estándar\\n\\nRESPUESTA ESPERADA:\\nProporciona únicamente la traducción completa en inglés, sin comentarios adicionales.\"}]\")}]}}"
+            },
+            {
+              "name": "generationConfig",
+              "value": "={{JSON.stringify({\"temperature\":0.3,\"maxOutputTokens\":2048})}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "gemini-translate-en",
+      "name": "Gemini Translate EN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents",
+              "value": "={{JSON.stringify([{\"parts\":[{\"text\":\"Eres un traductor especializado en documentación técnica financiera. Tu tarea es traducir el siguiente documento educativo de español a portugués brasileño, manteniendo:\\n\\nREQUISITOS:\\n- Tono profesional y educativo\\n- Terminología técnica precisa\\n- Estructura original del documento\\n\\nDOCUMENTO A TRADUCIR:\\n\" + $json.texto_extraido + \"\\n\\nINSTRUCCIONES ESPECÍFICAS:\\n1. Mantén todos los títulos y subtítulos\\n2. Preserva listas y numeración\\n3. Conserva el formato técnico\\n4. Usa terminología financiera estándar brasileña\\n\\nRESPUESTA ESPERADA:\\nProporciona únicamente la traducción completa en portugués brasileño, sin comentarios adicionales.\"}]\")}]}}"
+            },
+            {
+              "name": "generationConfig",
+              "value": "={{JSON.stringify({\"temperature\":0.3,\"maxOutputTokens\":2048})}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "gemini-translate-pt",
+      "name": "Gemini Translate PT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Cargar matriz terminológica\nconst matriz = {\n  \"EN\": {\n    \"agrupación\": \"grouping\",\n    \"alarmas\": \"alerts\",\n    \"anulación\": \"reversal\",\n    \"asiento\": \"journal entry\",\n    \"balance de saldos\": \"trial balance\",\n    \"Buscar VV\": \"LookUp\",\n    \"cargar\": \"upload\",\n    \"carga\": \"upload\",\n    \"combinación\": \"combination\",\n    \"compensación\": \"offset\",\n    \"conciliación\": \"reconciliation\",\n    \"conciliación avanzada\": \"advanced reconciliation\",\n    \"conciliación estándar\": \"standard reconciliation\",\n    \"conciliado\": \"reconciled\",\n    \"cruce\": \"matching\",\n    \"descompensación\": \"reverse offset\",\n    \"descargas\": \"downloads\",\n    \"desencadenante\": \"trigger\",\n    \"ejecutar\": \"execute\",\n    \"estado\": \"status\",\n    \"foto\": \"snapshot\",\n    \"grupos conciliables\": \"reconcilable groups\",\n    \"hallazgos\": \"insights\",\n    \"historial de actividades\": \"action logs\",\n    \"las visuales\": \"visuals\",\n    \"papelera\": \"recycle bin\",\n    \"parseo\": \"parsing\",\n    \"plantilla\": \"template\",\n    \"repositorio\": \"data bucket\",\n    \"ruta\": \"path\",\n    \"Simetrik\": \"Simetrik\",\n    \"sociedad legal\": \"company\",\n    \"tablero\": \"dashboard\",\n    \"unión de fuentes\": \"source union\",\n    \"versión clásica\": \"legacy version\"\n  },\n  \"PT\": {\n    \"agrupación\": \"agrupamento\",\n    \"alarmas\": \"alarmes\",\n    \"anulación\": \"anulação\",\n    \"asiento\": \"lançamento\",\n    \"balance de saldos\": \"balancete\",\n    \"Buscar VV\": \"ProcV\",\n    \"cargar\": \"carregar\",\n    \"carga\": \"carga\",\n    \"combinación\": \"combinação\",\n    \"compensación\": \"compensação\",\n    \"conciliación\": \"conciliação\",\n    \"conciliación avanzada\": \"conciliação avançada\",\n    \"conciliación estándar\": \"conciliação básica\",\n    \"conciliado\": \"conciliado\",\n    \"cruce\": \"cruzamento\",\n    \"descompensación\": \"descompenção\",\n    \"descargas\": \"downloads\",\n    \"desencadenante\": \"desencadeante\",\n    \"ejecutar\": \"executar\",\n    \"estado\": \"status\",\n    \"foto\": \"foto\",\n    \"grupos conciliables\": \"grupos conciliáveis\",\n    \"hallazgos\": \"insights\",\n    \"historial de actividades\": \"registro de atividades\",\n    \"las visuales\": \"as visuais\",\n    \"papelera\": \"lixeira\",\n    \"parseo\": \"parseamento\",\n    \"plantilla\": \"template\",\n    \"repositorio\": \"repositório\",\n    \"ruta\": \"caminho\",\n    \"Simetrik\": \"Simetrik\",\n    \"sociedad legal\": \"companhia\",\n    \"tablero\": \"painel\",\n    \"unión de fuentes\": \"união de fontes\",\n    \"versión clásica\": \"versão legada\"\n  }\n};\n\n// Función para aplicar matriz terminológica\nfunction aplicarMatriz(texto, idioma) {\n  let textoCorregido = texto;\n  let contador = 0;\n  \n  for (const [es, traduccion] of Object.entries(matriz[idioma])) {\n    const regex = new RegExp(es, 'gi');\n    if (textoCorregido.match(regex)) {\n      textoCorregido = textoCorregido.replace(regex, traduccion);\n      contador++;\n    }\n  }\n  \n  return {\n    texto_corregido: textoCorregido,\n    terminos_reemplazados: contador,\n    idioma: idioma\n  };\n}\n\n// Procesar según el idioma\nconst idioma = $json.idioma || 'EN';\nconst textoTraducido = $json.candidates[0].content.parts[0].text;\n\nconst resultado = aplicarMatriz(textoTraducido, idioma);\n\nreturn {\n  texto_final: resultado.texto_corregido,\n  terminos_reemplazados: resultado.terminos_reemplazados,\n  idioma: resultado.idioma,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "apply-matrix-en",
+      "name": "Apply Matrix EN",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1340, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Cargar matriz terminológica\nconst matriz = {\n  \"EN\": {\n    \"agrupación\": \"grouping\",\n    \"alarmas\": \"alerts\",\n    \"anulación\": \"reversal\",\n    \"asiento\": \"journal entry\",\n    \"balance de saldos\": \"trial balance\",\n    \"Buscar VV\": \"LookUp\",\n    \"cargar\": \"upload\",\n    \"carga\": \"upload\",\n    \"combinación\": \"combination\",\n    \"compensación\": \"offset\",\n    \"conciliación\": \"reconciliation\",\n    \"conciliación avanzada\": \"advanced reconciliation\",\n    \"conciliación estándar\": \"standard reconciliation\",\n    \"conciliado\": \"reconciled\",\n    \"cruce\": \"matching\",\n    \"descompensación\": \"reverse offset\",\n    \"descargas\": \"downloads\",\n    \"desencadenante\": \"trigger\",\n    \"ejecutar\": \"execute\",\n    \"estado\": \"status\",\n    \"foto\": \"snapshot\",\n    \"grupos conciliables\": \"reconcilable groups\",\n    \"hallazgos\": \"insights\",\n    \"historial de actividades\": \"action logs\",\n    \"las visuales\": \"visuals\",\n    \"papelera\": \"recycle bin\",\n    \"parseo\": \"parsing\",\n    \"plantilla\": \"template\",\n    \"repositorio\": \"data bucket\",\n    \"ruta\": \"path\",\n    \"Simetrik\": \"Simetrik\",\n    \"sociedad legal\": \"company\",\n    \"tablero\": \"dashboard\",\n    \"unión de fuentes\": \"source union\",\n    \"versión clásica\": \"legacy version\"\n  },\n  \"PT\": {\n    \"agrupación\": \"agrupamento\",\n    \"alarmas\": \"alarmes\",\n    \"anulación\": \"anulação\",\n    \"asiento\": \"lançamento\",\n    \"balance de saldos\": \"balancete\",\n    \"Buscar VV\": \"ProcV\",\n    \"cargar\": \"carregar\",\n    \"carga\": \"carga\",\n    \"combinación\": \"combinação\",\n    \"compensación\": \"compensação\",\n    \"conciliación\": \"conciliação\",\n    \"conciliación avanzada\": \"conciliação avançada\",\n    \"conciliación estándar\": \"conciliação básica\",\n    \"conciliado\": \"conciliado\",\n    \"cruce\": \"cruzamento\",\n    \"descompensación\": \"descompenção\",\n    \"descargas\": \"downloads\",\n    \"desencadenante\": \"desencadeante\",\n    \"ejecutar\": \"executar\",\n    \"estado\": \"status\",\n    \"foto\": \"foto\",\n    \"grupos conciliables\": \"grupos conciliáveis\",\n    \"hallazgos\": \"insights\",\n    \"historial de actividades\": \"registro de atividades\",\n    \"las visuales\": \"as visuais\",\n    \"papelera\": \"lixeira\",\n    \"parseo\": \"parseamento\",\n    \"plantilla\": \"template\",\n    \"repositorio\": \"repositório\",\n    \"ruta\": \"caminho\",\n    \"Simetrik\": \"Simetrik\",\n    \"sociedad legal\": \"companhia\",\n    \"tablero\": \"painel\",\n    \"unión de fuentes\": \"união de fontes\",\n    \"versión clásica\": \"versão legada\"\n  }\n};\n\n// Función para aplicar matriz terminológica\nfunction aplicarMatriz(texto, idioma) {\n  let textoCorregido = texto;\n  let contador = 0;\n  \n  for (const [es, traduccion] of Object.entries(matriz[idioma])) {\n    const regex = new RegExp(es, 'gi');\n    if (textoCorregido.match(regex)) {\n      textoCorregido = textoCorregido.replace(regex, traduccion);\n      contador++;\n    }\n  }\n  \n  return {\n    texto_corregido: textoCorregido,\n    terminos_reemplazados: contador,\n    idioma: idioma\n  };\n}\n\n// Procesar según el idioma\nconst idioma = $json.idioma || 'PT';\nconst textoTraducido = $json.candidates[0].content.parts[0].text;\n\nconst resultado = aplicarMatriz(textoTraducido, idioma);\n\nreturn {\n  texto_final: resultado.texto_corregido,\n  terminos_reemplazados: resultado.terminos_reemplazados,\n  idioma: resultado.idioma,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "apply-matrix-pt",
+      "name": "Apply Matrix PT",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1340, 400]
+    },
+    {
+      "parameters": {
+        "operation": "htmlToPdf",
+        "html": "={{$json.texto_final}}",
+        "options": {
+          "format": "A4",
+          "margin": {
+            "top": "1cm",
+            "right": "1cm",
+            "bottom": "1cm",
+            "left": "1cm"
+          }
+        }
+      },
+      "id": "generate-pdf-en",
+      "name": "Generate EN PDF",
+      "type": "n8n-nodes-base.htmlToPdf",
+      "typeVersion": 1,
+      "position": [1560, 200]
+    },
+    {
+      "parameters": {
+        "operation": "htmlToPdf",
+        "html": "={{$json.texto_final}}",
+        "options": {
+          "format": "A4",
+          "margin": {
+            "top": "1cm",
+            "right": "1cm",
+            "bottom": "1cm",
+            "left": "1cm"
+          }
+        }
+      },
+      "id": "generate-pdf-pt",
+      "name": "Generate PT PDF",
+      "type": "n8n-nodes-base.htmlToPdf",
+      "typeVersion": 1,
+      "position": [1560, 400]
+    },
+    {
+      "parameters": {
+        "filePath": "/path/to/client_database.json"
+      },
+      "id": "get-client-database",
+      "name": "Get Client Database",
+      "type": "n8n-nodes-base.readFile",
+      "typeVersion": 1,
+      "position": [900, 600]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Cargar base de datos de clientes\nconst clientes = JSON.parse($json.data);\n\n// Segmentar por idioma\nconst clientesPorIdioma = {\n  'ES': [],\n  'EN': [],\n  'PT': []\n};\n\nclientes.clientes.forEach(cliente => {\n  clientesPorIdioma[cliente.idioma].push(cliente);\n});\n\n// Preparar datos para envío\nconst datosEnvio = [];\n\n// Clientes ES (PDF original)\nclientesPorIdioma.ES.forEach(cliente => {\n  datosEnvio.push({\n    cliente: cliente,\n    idioma: 'ES',\n    pdf_path: '/path/to/ES_-_Conciliaciones_Avanzadas.pdf',\n    template: 'template_ES.html'\n  });\n});\n\n// Clientes EN (PDF traducido)\nclientesPorIdioma.EN.forEach(cliente => {\n  datosEnvio.push({\n    cliente: cliente,\n    idioma: 'EN',\n    pdf_path: '/path/to/OnePager_EN.pdf',\n    template: 'template_EN.html'\n  });\n});\n\n// Clientes PT (PDF traducido)\nclientesPorIdioma.PT.forEach(cliente => {\n  datosEnvio.push({\n    cliente: cliente,\n    idioma: 'PT',\n    pdf_path: '/path/to/OnePager_PT.pdf',\n    template: 'template_PT.html'\n  });\n});\n\nreturn datosEnvio;"
+      },
+      "id": "segment-by-language",
+      "name": "Segment by Language",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1120, 600]
+    },
+    {
+      "parameters": {
+        "filePath": "={{'/path/to/email_templates/' + $json.template}}"
+      },
+      "id": "read-email-template",
+      "name": "Read Email Template",
+      "type": "n8n-nodes-base.readFile",
+      "typeVersion": 1,
+      "position": [1340, 600]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Personalizar plantilla de correo\nconst template = $json.data;\nconst cliente = $json.cliente;\n\n// Reemplazar variables según idioma\nlet templatePersonalizado = template;\n\nif ($json.idioma === 'ES') {\n  templatePersonalizado = templatePersonalizado.replace(/{{nombre}}/g, cliente.nombre);\n} else if ($json.idioma === 'EN') {\n  templatePersonalizado = templatePersonalizado.replace(/{{name}}/g, cliente.nombre);\n} else if ($json.idioma === 'PT') {\n  templatePersonalizado = templatePersonalizado.replace(/{{nome}}/g, cliente.nombre);\n}\n\nreturn {\n  cliente: cliente,\n  idioma: $json.idioma,\n  template_personalizado: templatePersonalizado,\n  pdf_path: $json.pdf_path,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "personalize-email",
+      "name": "Personalize Email",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1560, 600]
+    },
+    {
+      "parameters": {
+        "fromEmail": "{{$env.GMAIL_USER}}",
+        "toEmail": "={{$json.cliente.correo}}",
+        "subject": "={{$json.idioma === 'ES' ? 'Actualización – Conciliaciones Avanzadas' : $json.idioma === 'EN' ? 'Update – Advanced Reconciliation' : 'Atualização – Conciliações Avançadas'}}",
+        "message": "={{$json.template_personalizado}}",
+        "attachments": {
+          "attachments": [
+            {
+              "name": "={{$json.idioma === 'ES' ? 'Conciliaciones_Avanzadas.pdf' : $json.idioma === 'EN' ? 'OnePager_EN.pdf' : 'OnePager_PT.pdf'}}",
+              "data": "={{$json.pdf_path}}"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "id": "send-personalized-emails",
+      "name": "Send Personalized Emails",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1780, 600]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read PDF File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read PDF File": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF Text": {
+      "main": [
+        [
+          {
+            "node": "Split by Language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split by Language": {
+      "main": [
+        [
+          {
+            "node": "Gemini Translate EN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gemini Translate PT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Translate EN": {
+      "main": [
+        [
+          {
+            "node": "Apply Matrix EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Translate PT": {
+      "main": [
+        [
+          {
+            "node": "Apply Matrix PT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Matrix EN": {
+      "main": [
+        [
+          {
+            "node": "Generate EN PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Matrix PT": {
+      "main": [
+        [
+          {
+            "node": "Generate PT PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Client Database": {
+      "main": [
+        [
+          {
+            "node": "Segment by Language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Segment by Language": {
+      "main": [
+        [
+          {
+            "node": "Read Email Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Email Template": {
+      "main": [
+        [
+          {
+            "node": "Personalize Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personalize Email": {
+      "main": [
+        [
+          {
+            "node": "Send Personalized Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}
